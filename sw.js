@@ -1,4 +1,4 @@
-const CACHE = "u10-search-42c8dff1df";
+const CACHE = "u10-search-0b23b7d5df";
 const ASSETS = ["./","./index.html","./manifest.webmanifest","./icon-192.png","./icon-512.png","./icon-maskable-512.png"];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
