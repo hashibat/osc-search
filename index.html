@@ -344,9 +344,10 @@ $("#foot").textContent = `収録: 大曽根戦績 ${DATA.own.length}試合 / リ
 <script>
 (function(){
   var btn=document.getElementById('a2hsBtn');
-  var standalone=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
-  if(standalone) return;                       // ホーム画面のアプリ → ボタンを出さない
   var ua=navigator.userAgent;
+  var standalone=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
+  // ホーム画面のアプリ → ボタンを出さない(LINEのブラウザは判定に関わらず出す)
+  if(standalone && !/\bLine\//i.test(ua)) return;
   var isIOS=/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1);
   var isLine=/\bLine\//i.test(ua), iosOther=isIOS&&/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
   var LABEL='ホーム画面に追加', deferred=null, timer=null;
