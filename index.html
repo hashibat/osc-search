@@ -339,7 +339,7 @@ $("#foot").textContent = `収録: 大曽根戦績 ${DATA.own.length}試合 / リ
 #a2hsBtn:active{opacity:.55}
 #a2hsBtn.pulse{animation:a2p 1.4s ease-in-out 3}
 @keyframes a2p{50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--accent) 30%,transparent)}}
-.titlerow{display:flex;align-items:center;gap:8px}
+.titlerow{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
 </style>
 <script>
 (function(){
@@ -349,32 +349,32 @@ $("#foot").textContent = `収録: 大曽根戦績 ${DATA.own.length}試合 / リ
   var ua=navigator.userAgent;
   var isIOS=/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1);
   var isLine=/\bLine\//i.test(ua), iosOther=isIOS&&/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
-  var deferred=null;
+  var LABEL='ホーム画面に追加', deferred=null, timer=null;
   function gone(){ btn.style.display='none'; }
+  // 自動で実行できない環境では、ボタンの文言で次の操作を知らせる
+  function hint(t){ btn.textContent=t; clearTimeout(timer); timer=setTimeout(function(){btn.textContent=LABEL;},6000); }
   btn.style.display='inline-block';
-  if(/[?&]openExternalBrowser=1/.test(location.search) && !isLine) btn.classList.add('pulse');  // LINEから開き直した直後
+  if(/[?&]openExternalBrowser=1/.test(location.search) && !isLine) btn.classList.add('pulse');
 
   btn.onclick=function(){
-    if(deferred){                              // Android/PC: インストール画面を開く
+    if(deferred){                              // Android/PC: インストール画面
       var d=deferred; deferred=null;
       d.prompt(); d.userChoice.then(function(r){ if(r&&r.outcome==='accepted') gone(); });
       return;
     }
-    if(isLine){ location.href=location.origin+location.pathname+'?openExternalBrowser=1'; return; }  // 標準ブラウザで開き直す
-    if(iosOther){ alert('iPhoneではSafariで開き直すと追加できます。'); return; }
-    if(isIOS){                                 // Safari: 共有メニュー →「ホーム画面に追加」
-      if(navigator.share){ navigator.share({title:document.title,url:location.href.split('?')[0]}).catch(function(){}); }
-      else alert('共有ボタンから「ホーム画面に追加」を選んでください。');
+    if(isLine){ location.href=location.origin+location.pathname+'?openExternalBrowser=1'; return; }  // LINEが標準ブラウザで開き直す
+    if(iosOther){ hint('Safariで開くと追加できます'); return; }
+    if(isIOS){                                 // Safari: 共有メニューを開く
+      hint('共有メニューから追加してください');
+      if(navigator.share) navigator.share({title:document.title,url:location.href.split('?')[0]}).catch(function(){});
       return;
     }
-    alert('ブラウザのメニュー(︙)から「アプリをインストール」または「ホーム画面に追加」を選んでください。');
+    hint('ブラウザのメニュー(︙)から追加できます');
   };
   if(!isIOS && !isLine){
     window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); deferred=e; });
     window.addEventListener('appinstalled',gone);
-    if(navigator.getInstalledRelatedApps){
-      navigator.getInstalledRelatedApps().then(function(a){ if(a&&a.length) gone(); },function(){});
-    }
+    if(navigator.getInstalledRelatedApps) navigator.getInstalledRelatedApps().then(function(a){ if(a&&a.length) gone(); },function(){});
   }
 })();
 </script>
