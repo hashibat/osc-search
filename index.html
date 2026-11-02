@@ -186,6 +186,10 @@ function scoreMatch(home,hs,as,away,matchedSet,extraHtml){
   </div>${extraHtml||""}`;
 }
 
+/* 新しい日付が上。日付は YYYY/MM/DD または M/D。同日はデータ順の逆(後の試合が上) */
+function dkey(d){const p=String(d||"").split("/").map(Number);return p.length>=3?p[0]*10000+p[1]*100+p[2]:(p[0]||0)*100+(p[1]||0);}
+function newestFirst(rows){return rows.map((r,i)=>[r,i]).sort((a,b)=>dkey(b[0].date)-dkey(a[0].date)||b[1]-a[1]).map(x=>x[0]);}
+
 /* ---------- main render ---------- */
 function render(query){
   const res = $("#results");
@@ -209,7 +213,7 @@ function render(query){
   }
 
   /* --- A. 大曽根 対戦履歴 --- */
-  let ownRows = DATA.own.filter(r=> ownSearch ? true : inSet(r.opponent));
+  let ownRows = newestFirst(DATA.own.filter(r=> ownSearch ? true : inSet(r.opponent)));
   if(ownRows.length){
     const w=ownRows.filter(r=>r.result==="W").length;
     const l=ownRows.filter(r=>r.result==="L").length;
@@ -235,7 +239,7 @@ function render(query){
   }
 
   /* --- B. リーグ戦 (57回) --- */
-  let lg = DATA.league.filter(r=> inSet(r.home)||inSet(r.away));
+  let lg = newestFirst(DATA.league.filter(r=> inSet(r.home)||inSet(r.away)));
   if(lg.length){
     html += `<div class="section"><h2>📋 第57回大会 リーグ戦 <span class="n">${lg.length}試合</span></h2>`;
     lg.forEach(r=>{
@@ -248,7 +252,7 @@ function render(query){
   }
 
   /* --- C. トーナメント (57回) --- */
-  let tr = DATA.tour.filter(r=> inSet(r.home)||inSet(r.away));
+  let tr = newestFirst(DATA.tour.filter(r=> inSet(r.home)||inSet(r.away)));
   if(tr.length){
     html += `<div class="section"><h2>🏆 第57回大会 トーナメント <span class="n">${tr.length}試合</span></h2>`;
     tr.forEach(r=>{
