@@ -374,14 +374,21 @@ $("#foot").textContent = `収録: 大曽根戦績 ${DATA.own.length}試合 / リ
     msg.innerHTML='下の共有ボタン <svg class="shr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M8 7l4-4 4 4M5 11v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8"/></svg> をタップし、<b>「ホーム画面に追加」</b>を選ぶと、アプリのように使えます。';
     setTimeout(show,1500);
   }else{
+    // Android / PC: イベントを待たず必ず案内。インストール済み(Android Chromeで判別可)なら出さない
+    var installed=false, ready=false;
+    function maybeShow(){ if(!installed) show(); }
+    msg.innerHTML='ブラウザのメニュー(<b>︙</b>)から<b>「アプリをインストール」</b>または<b>「ホーム画面に追加」</b>を選ぶと、アプリのようにすぐ開けます。';
     window.addEventListener('beforeinstallprompt',function(e){
       e.preventDefault(); deferred=e;
       msg.textContent='ホーム画面に追加すると、アプリのようにすぐ開けます。';
-      go.style.display='block'; setTimeout(show,1500);
+      go.style.display='block';
     });
     go.onclick=function(){ if(!deferred) return; deferred.prompt();
       deferred.userChoice.then(function(){deferred=null; hide();}); };
-    window.addEventListener('appinstalled',hide);
+    window.addEventListener('appinstalled',function(){installed=true;hide();});
+    var chk = navigator.getInstalledRelatedApps ? navigator.getInstalledRelatedApps() : Promise.resolve([]);
+    chk.then(function(a){ installed = !!(a&&a.length); }, function(){})
+       .then(function(){ setTimeout(maybeShow,1500); });
   }
 })();
 </script>
