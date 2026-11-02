@@ -88,7 +88,7 @@ table.st td.name{text-align:left}
 <div class="wrap">
   <header>
     <h1>試合結果検索</h1>
-    <p class="sub">U10 / 第57回横浜国際チビッ子大会 ＋ 大曽根SC 戦績</p>
+    <p class="sub">大曽根SC 戦績＋U10 / 第57回横浜国際チビッ子大会</p>
     <div class="searchbox">
       <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="相手チーム名を入力（例: 太尾, さちが丘, かもめ）">
       <button class="clr" id="clr" aria-label="clear">×</button>
@@ -361,6 +361,11 @@ $("#foot").textContent = `収録: 大曽根戦績 ${DATA.own.length}試合 / リ
   function show(){box.style.display='block'}
   function hide(){box.style.display='none'; safe(function(){localStorage.setItem(KEY,'1')})}
   document.getElementById('a2hsX').onclick=hide;
+  if(/Line\//i.test(ua)){
+    // LINE内ブラウザではホーム画面に追加できない → 標準ブラウザで開き直す案内
+    msg.innerHTML='LINEのブラウザでは追加できません。画面の<b>「︙」や「…」メニュー</b>から<b>「'+(isIOS?'Safariで開く':'Chromeで開く」または「他のアプリで開く')+'」</b>を選び、開き直してください。';
+    setTimeout(show,1500); return;
+  }
   if(isIOS){
     // iOS 以外のブラウザ(Chrome等)からは追加できないので Safari のみ案内
     if(/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua)) return;
