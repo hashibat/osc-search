@@ -357,14 +357,17 @@ $("#foot").textContent = `収録: 大曽根戦績 ${DATA.own.length}試合 / リ
 (function(){
   var KEY='a2hs-dismissed', box=document.getElementById('a2hs');
   function safe(f){try{return f()}catch(e){}}
-  if(safe(function(){return localStorage.getItem(KEY)})) return;
+  if(/[?&]a2hs=reset/.test(location.search)) safe(function(){localStorage.removeItem(KEY)});
+  // 閉じた(×)記録は7日で失効。アンインストール後に再び案内が出るようにする
+  var t=+safe(function(){return localStorage.getItem(KEY)})||0;
+  if(t && Date.now()-t < 7*24*3600*1000) return;
   var standalone = (window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
   if(standalone) return;
   var ua=navigator.userAgent, isIOS=/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1);
   var msg=document.getElementById('a2hsMsg'), go=document.getElementById('a2hsGo'), deferred=null;
   function show(){box.style.display='block'}
-  function hide(){box.style.display='none'; safe(function(){localStorage.setItem(KEY,'1')})}
-  document.getElementById('a2hsX').onclick=hide;
+  function hide(remember){box.style.display='none'; if(remember) safe(function(){localStorage.setItem(KEY,String(Date.now()))})}
+  document.getElementById('a2hsX').onclick=function(){hide(true)};
   if(/Line\//i.test(ua)){
     // LINE内ブラウザではホーム画面に追加できない → 標準ブラウザで開き直す案内
     msg.innerHTML='LINEのブラウザでは追加できません。画面の<b>「︙」や「…」メニュー</b>から<b>「'+(isIOS?'Safariで開く':'Chromeで開く」または「他のアプリで開く')+'」</b>を選び、開き直してください。';
@@ -382,8 +385,8 @@ $("#foot").textContent = `収録: 大曽根戦績 ${DATA.own.length}試合 / リ
       go.style.display='block'; setTimeout(show,1500);
     });
     go.onclick=function(){ if(!deferred) return; deferred.prompt();
-      deferred.userChoice.then(function(){deferred=null; hide();}); };
-    window.addEventListener('appinstalled',hide);
+      deferred.userChoice.then(function(r){deferred=null; hide(r&&r.outcome!=='accepted');}); };
+    window.addEventListener('appinstalled',function(){hide(false)});
   }
 })();
 </script>
