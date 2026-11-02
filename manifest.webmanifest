@@ -1,6 +1,6 @@
 {
-  "name": "試合結果 あいまい検索 U10",
-  "short_name": "試合結果検索",
+  "name": "OSC試合結果検索",
+  "short_name": "OSC試合結果検索",
   "description": "相手チーム名であいまい検索して過去の試合結果を表示",
   "start_url": ".",
   "scope": ".",
